@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#0E7C7B">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ひとつ帳">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>ひとつ帳 – 個人用</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#F1F5F7;--card:#fff;--ink:#12212B;--sub:#5B6B76;--line:#D9E1E6;--acc:#0E7C7B;--accfg:#fff;--hi:#FBE3A6;--warn:#B3412F;--ok:#2E7D4F}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F1A20;--card:#17262E;--ink:#E8EFF2;--sub:#97A8B2;--line:#2A3B45;--acc:#3FB8B5;--accfg:#06201F;--hi:#5A4513;--warn:#F08A76;--ok:#6CCB92}}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*:before,*:after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Zen Kaku Gothic New","Hiragino Sans","Noto Sans JP",sans-serif;line-height:1.6;font-size:15px}
+main{max-width:560px;margin:0 auto;padding:16px 16px 96px}
+h1{font-size:22px;margin:8px 0 2px}
+.lead{color:var(--sub);margin:0 0 16px;font-size:13px}
+h2{font-size:16px;margin:0 0 10px}
+section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+label{display:block;font-size:12px;color:var(--sub);margin:10px 0 3px}
+input,select,textarea{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px}
+input:focus,select:focus,textarea:focus,button:focus-visible,a:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+button,a.btn{font:inherit;cursor:pointer;border-radius:10px;border:1px solid var(--acc);background:var(--acc);color:var(--accfg);padding:9px 14px;font-weight:700;text-decoration:none;display:inline-block;font-size:14px}
+button.ghost,a.btn.ghost{background:transparent;color:var(--acc)}
+button.full{width:100%;margin-top:14px;padding:11px}
+button.sm2{padding:4px 10px;font-size:12px}
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);display:flex;padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));z-index:5}
+nav button{flex:1;background:none;border:0;color:var(--sub);padding:8px 4px;border-radius:8px}
+nav button[aria-selected="true"]{color:var(--acc);box-shadow:inset 0 -3px 0 var(--acc)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.row:first-of-type{border-top:0}
+.sm{font-size:12px;color:var(--sub)}
+.note{font-size:12px;color:var(--sub);margin-top:8px}
+.tag{font-size:11px;padding:2px 8px;border-radius:99px;border:1px solid var(--line)}
+.tag.ok{color:var(--ok);border-color:var(--ok)}.tag.ng{color:var(--warn);border-color:var(--warn)}
+.fld{display:flex;gap:8px;align-items:center;margin-top:8px}.fld input{flex:1}
+.stale{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--hi);border-radius:8px;padding:6px 10px;margin-top:6px;font-size:13px}
+.stale span{word-break:break-all}
+.acts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+details{margin-top:10px}summary{cursor:pointer;color:var(--sub);font-size:13px}
+.log{font-size:13px;padding:8px 0;border-top:1px solid var(--line)}
+.price{font-weight:700;white-space:nowrap}
+mark{background:var(--hi);color:inherit;border-radius:3px;padding:0 1px}
+.toast{position:fixed;left:16px;right:16px;bottom:calc(76px + env(safe-area-inset-bottom,0px));max-width:528px;margin:0 auto;background:var(--ink);color:var(--bg);padding:12px 14px;border-radius:10px;z-index:9;display:none;font-size:14px}
+.x{background:none;border:0;color:var(--sub);padding:4px 8px;font-size:18px}
+.okrow{display:flex;justify-content:space-between;gap:8px;padding:6px 0;font-size:13px;border-top:1px solid var(--line);word-break:break-all}
+.stale s{color:var(--sub)}.stale .b2{display:flex;gap:6px;flex:none;flex-wrap:wrap;justify-content:flex-end}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main>
+  <h1>ひとつ帳</h1>
+  <p class="lead">自分用。住所などを変えたら、どのショップが未更新かを管理します。データはこの端末のブラウザ内だけに保存されます。</p>
+
+  <div id="v-data">
+    <div id="banner"></div>
+    <section>
+      <h2>基本情報</h2>
+      <div id="fields"></div>
+      <button class="full" id="save">保存</button>
+      <div class="note">変更した項目は、各ショップで「要更新」になります。</div>
+    </section>
+    <section>
+      <h2>支払いカード(メモ)</h2>
+      <div class="sm">カード番号は保存しません。「どのカードか」の目印だけ記録します。</div>
+      <label for="cb">カード名(例:Visa 楽天カード)</label><input id="cb">
+      <label for="cl">末尾4桁</label><input id="cl" inputmode="numeric" maxlength="4">
+      <button class="ghost full" id="csave">カードを保存</button>
+    </section>
+    <section><h2>変更履歴</h2><div id="log"></div></section>
+    <section>
+      <h2>バックアップ</h2>
+      <div class="sm">端末やブラウザのデータを消すと失われます。たまに書き出してメモ等に保存してください。</div>
+      <textarea id="bk" rows="4" aria-label="バックアップ" style="margin-top:8px"></textarea>
+      <div class="acts"><button class="ghost" id="bkout">書き出す(コピー)</button><button class="ghost" id="bkin">貼り付けた内容を読み込む</button></div>
+    </section>
+  </div>
+
+  <div id="v-shops" hidden>
+    <div id="shops"></div>
+    <section>
+      <h2>ショップを追加</h2>
+      <label for="ns">ショップ名</label><input id="ns">
+      <label for="nu">アカウント設定ページのURL(任意・https://)</label><input id="nu" type="url" placeholder="https://">
+      <button class="ghost full" id="nadd">追加</button>
+    </section>
+  </div>
+
+  <div id="v-orders" hidden>
+    <section>
+      <h2>購入を記録</h2>
+      <label for="as">ショップ</label><select id="as"></select>
+      <label for="ai">商品名</label><input id="ai">
+      <label for="ap">金額(円)</label><input id="ap" inputmode="numeric">
+      <label for="ad">購入日</label><input id="ad" type="date">
+      <button class="full" id="oadd">記録する</button>
+    </section>
+    <section>
+      <h2>購入履歴</h2>
+      <label for="oq">検索(商品名・ショップ名・日付)</label><input id="oq" type="search" autocomplete="off">
+      <label for="osh">ショップで絞り込み</label><select id="osh"></select>
+      <div class="sm" id="osum" style="margin-top:10px"></div>
+      <div id="olist"></div>
+    </section>
+  </div>
+</main>
+<div class="toast" id="toast" role="status"></div>
+<nav role="tablist">
+  <button role="tab" data-t="data" aria-selected="true">マイデータ</button>
+  <button role="tab" data-t="shops" aria-selected="false">ショップ</button>
+  <button role="tab" data-t="orders" aria-selected="false">購入履歴</button>
+</nav>
+<script>
+const KEY="hitotsucho-v2",$=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const FIELDS=[["name","お名前","name"],["email","メール","email"],["phone","電話番号","tel"],["zip","郵便番号","postal-code"],["addr","住所","street-address"],["card","カード"]];
+const LBL=Object.fromEntries(FIELDS.map(f=>[f[0],f[1]]));
+const blankReg=()=>({name:"",email:"",phone:"",zip:"",addr:"",card:""});
+const def=()=>({p:{name:"",email:"",phone:"",zip:"",addr:""},card:{brand:"",last4:""},
+ shops:[{id:"amazon",name:"Amazon",url:"https://www.amazon.co.jp/a/addresses",reg:blankReg()},{id:"vspo",name:"ぶいすぽっ！オンラインショップ",url:"",reg:blankReg()}],orders:[],log:[]});
+let S;try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+if(!S||!S.p)S=def();
+const persist=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const now=()=>new Date().toLocaleString("ja-JP",{month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit"});
+function toast(t){const e=$("toast");e.textContent=t;e.style.display="block";clearTimeout(toast.t);toast.t=setTimeout(()=>e.style.display="none",2400)}
+const val=k=>k==="card"?(S.card.last4?`${S.card.brand||"カード"} ••••${S.card.last4}`:""):S.p[k];
+const okUrl=u=>/^https:\/\/[^\s]+$/.test(u);
+async function copy(t){try{await navigator.clipboard.writeText(t);toast("コピーしました")}catch(e){toast("コピーできませんでした。長押しでコピーしてください")}}
+
+function renderFields(){
+ $("fields").innerHTML=FIELDS.filter(f=>f[0]!=="card").map(([k,l,ac])=>`<label for="f_${k}">${l}</label><div class="fld"><input id="f_${k}" autocomplete="${ac}" value="${esc(S.p[k])}"><button class="ghost sm2" data-copy="${k}" type="button">コピー</button></div>`).join("");
+ $("cb").value=S.card.brand;$("cl").value=S.card.last4;
+}
+function renderLog(){$("log").innerHTML=S.log.length?S.log.slice(0,30).map(l=>`<div class="log"><b>${esc(l.t)}</b><div class="sm">${esc(l.w)}</div></div>`).join(""):'<div class="sm">変更するとここに記録されます。</div>'}
+const cur=k=>k==="card"?S.card.last4:S.p[k];
+const curAll=()=>Object.fromEntries(FIELDS.map(f=>[f[0],cur(f[0])]));
+const cmp=s=>String(s||"").normalize("NFKC").toLowerCase().replace(/\s+/g,"");
+const diff=sh=>FIELDS.map(f=>f[0]).filter(k=>cur(k)!==""&&cmp(sh.reg[k])!==cmp(cur(k)));
+function mig(){S.shops.forEach(sh=>{if(!sh.reg){sh.reg=blankReg();FIELDS.forEach(f=>{const k=f[0];if(S.fv&&sh.done&&sh.done[k]>=S.fv[k])sh.reg[k]=cur(k)})}})}
+function go(t){document.querySelector(`nav button[data-t="${t}"]`).click()}
+function renderBanner(){
+ const l=S.shops.map(sh=>({sh,d:diff(sh)})).filter(x=>x.d.length);
+ const has=FIELDS.some(f=>cur(f[0])!=="");
+ $("banner").innerHTML=l.length?`<section style="border-color:var(--warn)"><h2>未更新のショップ ${l.length}件</h2>${l.map(x=>`<div class="row"><div><b>${esc(x.sh.name)}</b><div class="sm">${x.d.map(k=>LBL[k]).join("・")}</div></div></div>`).join("")}<button class="full" id="gos" type="button">ショップタブで確認</button></section>`:(has&&S.shops.length?'<section class="sm">✓ すべてのショップが最新です</section>':"");
+ document.querySelector('nav [data-t="shops"]').textContent="ショップ"+(l.length?` (${l.length})`:"");
+}
+function renderShops(){
+ $("shops").innerHTML=S.shops.map(sh=>{
+  const df=diff(sh);
+  const rows=FIELDS.map(([k,l])=>{const m=cur(k);if(m==="")return"";
+   const r=sh.reg[k]||"",bad=cmp(r)!==cmp(m),rv=r?(k==="card"?"••••"+esc(r):esc(r)):"";
+   return bad?`<div class="stale"><span><b>${l}</b><br>登録中:${rv?`<s>${rv}</s>`:"未入力"}<br>最新:${esc(val(k))}</span><span class="b2">${k==="card"?"":`<button class="ghost sm2" data-copy="${k}" type="button">コピー</button>`}<button class="sm2" data-ok="${sh.id}:${k}" type="button">反映済み</button></span></div>`:`<div class="okrow"><span><b>${l}</b>:${esc(val(k))}</span><span class="tag ok">✓ 一致</span></div>`}).join("");
+  return `<section><div class="row" style="border:0;padding:0"><h2 style="margin:0">${esc(sh.name)}</h2><span class="tag ${df.length?"ng":"ok"}">${df.length?"要更新 "+df.length+"件":"✓ 最新"}</span></div>
+  ${rows||'<div class="sm" style="margin-top:8px">マイデータを入力すると、登録内容との比較が表示されます。</div>'}
+  <div class="acts">${okUrl(sh.url)?`<a class="btn ghost" href="${esc(sh.url)}" target="_blank" rel="noopener">設定ページを開く</a>`:""}${df.length?`<button data-done="${sh.id}" type="button">すべて反映済みにする</button>`:""}</div>
+  <details><summary>登録内容の編集・設定</summary>
+   <div class="sm" style="margin-top:8px">このショップに今登録されている内容を記録します。</div>
+   ${FIELDS.map(([k,l])=>`<label for="r_${sh.id}_${k}">${k==="card"?"カード末尾4桁":l}</label><input id="r_${sh.id}_${k}" value="${esc(sh.reg[k]||"")}">`).join("")}
+   <div class="acts"><button class="sm2" data-rsave="${sh.id}" type="button">登録内容を保存</button></div>
+   <label for="u_${sh.id}">アカウント設定ページのURL</label><input id="u_${sh.id}" value="${esc(sh.url)}" placeholder="https://">
+   <div class="acts"><button class="ghost sm2" data-url="${sh.id}" type="button">URLを保存</button><button class="ghost sm2" data-del="${sh.id}" type="button">このショップを削除</button></div></details></section>`}).join("")||'<section class="sm">ショップがありません。下から追加してください。</section>';
+ renderBanner();
+}
+function selOpts(){const o=S.shops.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join("");$("as").innerHTML=o;$("osh").innerHTML='<option value="">すべてのショップ</option>'+o}
+const norm=t=>String(t).normalize("NFKC").toLowerCase();
+function hl(t,qs){let h=esc(t);qs.forEach(w=>{const e=esc(w).replace(/[.*+?^${}()|[\]\\]/g,"\\$&");if(e)h=h.replace(new RegExp("("+e+")","gi"),"<mark>$1</mark>")});return h}
+function renderOrders(){
+ const qs=norm($("oq").value).trim().split(/\s+/).filter(Boolean),sf=$("osh").value;
+ const nm=id=>(S.shops.find(s=>s.id===id)||{name:"(削除済みショップ)"}).name;
+ const list=S.orders.filter(o=>{const h=norm(o.item+" "+nm(o.shop)+" "+o.date+" "+o.date.slice(5).replace("-","/"));return(!sf||o.shop===sf)&&qs.every(w=>h.includes(w))}).sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
+ $("osum").textContent=`${list.length}件 ・ 合計 ¥${list.reduce((a,o)=>a+o.price,0).toLocaleString("ja-JP")}`;
+ $("olist").innerHTML=list.length?list.map(o=>`<div class="row"><div><div>${hl(o.item,qs)}</div><div class="sm">${hl(nm(o.shop),qs)} ・ ${o.date.replace(/-/g,"/")}</div></div><div style="display:flex;align-items:center"><span class="price">¥${o.price.toLocaleString("ja-JP")}</span><button class="x" data-odel="${o.id}" aria-label="削除" type="button">×</button></div></div>`).join(""):'<div class="sm" style="padding:12px 0">購入の記録がありません。上のフォームから追加できます。</div>';
+}
+document.addEventListener("click",e=>{
+ const b=e.target.closest("button");if(!b)return;if(b.id==="gos"){go("shops");return}const d=b.dataset;
+ if(d.copy){copy(val(d.copy))}
+ else if(d.done){const sh=S.shops.find(s=>s.id===d.done);sh.reg=curAll();S.log.unshift({t:`${sh.name}の登録を更新済みに`,w:now()});persist();renderShops();renderLog();toast("更新済みにしました")}
+ else if(d.url){const u=$("u_"+d.url).value.trim();if(u&&!okUrl(u)){toast("https:// から始まるURLを入力してください");return}S.shops.find(s=>s.id===d.url).url=u;persist();renderShops();toast("保存しました")}
+ else if(d.del){if(b.dataset.arm!=="1"){b.dataset.arm="1";b.textContent="もう一度押すと削除";return}S.shops=S.shops.filter(s=>s.id!==d.del);persist();renderShops();selOpts();renderOrders()}
+ else if(d.ok){const[id,k]=d.ok.split(":");S.shops.find(s=>s.id===id).reg[k]=cur(k);persist();renderShops()}
+ else if(d.rsave){const sh=S.shops.find(s=>s.id===d.rsave);FIELDS.forEach(([k])=>{const el=$(`r_${sh.id}_${k}`);if(el)sh.reg[k]=k==="card"?el.value.replace(/\D/g,"").slice(-4):el.value.trim()});persist();renderShops();toast("登録内容を保存しました")}
+ else if(d.odel){S.orders=S.orders.filter(o=>String(o.id)!==d.odel);persist();renderOrders()}
+});
+$("save").onclick=()=>{
+ const ch=FIELDS.filter(f=>f[0]!=="card"&&$("f_"+f[0]).value.trim()!==S.p[f[0]]).map(f=>f[0]);
+ if(!ch.length){toast("変更はありません");return}
+ ch.forEach(k=>{S.p[k]=$("f_"+k).value.trim()});
+ S.log.unshift({t:ch.map(k=>LBL[k]).join("・")+"を変更",w:now()});persist();renderLog();renderShops();toast(`保存しました。未更新のショップが${S.shops.filter(sh=>diff(sh).length).length}件あります`)};
+$("csave").onclick=()=>{
+ const l=$("cl").value.replace(/\D/g,"");if(l&&l.length!==4){toast("末尾4桁を入力してください");return}
+ S.card={brand:$("cb").value.trim(),last4:l};S.log.unshift({t:"カードのメモを変更",w:now()});persist();renderLog();renderShops();toast("保存しました")};
+$("nadd").onclick=()=>{
+ const n=$("ns").value.trim(),u=$("nu").value.trim();if(!n){toast("ショップ名を入力してください");return}
+ if(u&&!okUrl(u)){toast("URLは https:// から始めてください");return}
+ S.shops.push({id:"s"+Date.now(),name:n,url:u,reg:blankReg()});$("ns").value=$("nu").value="";persist();renderShops();selOpts();toast("追加しました")};
+$("oadd").onclick=()=>{
+ const item=$("ai").value.trim(),price=parseInt($("ap").value.normalize("NFKC").replace(/[^\d]/g,""),10),date=$("ad").value;
+ if(!item||isNaN(price)||!date||!$("as").value){toast("ショップ・商品名・金額・日付を入力してください");return}
+ S.orders.push({id:Date.now(),shop:$("as").value,item,price,date});$("ai").value=$("ap").value="";persist();renderOrders();toast("記録しました")};
+$("bkout").onclick=()=>{$("bk").value=JSON.stringify(S);copy($("bk").value)};
+$("bkin").onclick=()=>{try{const x=JSON.parse($("bk").value);if(!x.p||!x.shops)throw 0;S=x;persist();init();toast("読み込みました")}catch(e){toast("読み込めませんでした。書き出した内容をそのまま貼ってください")}};
+$("oq").oninput=renderOrders;$("osh").onchange=renderOrders;
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{
+ document.querySelectorAll("nav button").forEach(x=>x.setAttribute("aria-selected",x===b));
+ ["data","shops","orders"].forEach(t=>$("v-"+t).hidden=t!==b.dataset.t);
+ if(b.dataset.t==="shops")renderShops();if(b.dataset.t==="orders")renderOrders();scrollTo(0,0)});
+function init(){mig();renderFields();renderLog();renderShops();selOpts();renderOrders()}
+const t=new Date(),p=n=>String(n).padStart(2,"0");$("ad").value=`${t.getFullYear()}-${p(t.getMonth()+1)}-${p(t.getDate())}`;
+init();
+</script>
+<script>if("serviceWorker" in navigator&&location.protocol==="https:"){addEventListener("load",()=>{try{navigator.serviceWorker.register("sw.js").catch(()=>{})}catch(e){}})}</script>
+</body>
+</html>

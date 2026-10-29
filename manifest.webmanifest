@@ -1,0 +1,17 @@
+{
+  "name": "ひとつ帳",
+  "short_name": "ひとつ帳",
+  "description": "ショップ登録情報の更新漏れを管理する個人用アプリ",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F1F5F7",
+  "theme_color": "#0E7C7B",
+  "lang": "ja",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}
