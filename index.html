@@ -66,6 +66,7 @@ mark{background:var(--hi);color:inherit;border-radius:3px;padding:0 1px}
     <section>
       <h2>基本情報</h2>
       <div id="fields"></div>
+      <button class="ghost sm2" id="cpaddr" type="button" style="margin-top:10px">住所をまとめてコピー</button>
       <button class="full" id="save">保存</button>
       <div class="note">変更した項目は、各ショップで「要更新」になります。</div>
     </section>
@@ -122,10 +123,10 @@ mark{background:var(--hi);color:inherit;border-radius:3px;padding:0 1px}
 <script>
 const KEY="hitotsucho-v2",$=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const FIELDS=[["name","お名前","name"],["email","メール","email"],["phone","電話番号","tel"],["zip","郵便番号","postal-code"],["addr","住所","street-address"],["card","カード"]];
+const FIELDS=[["name","お名前","name"],["email","メール","email"],["phone","電話番号","tel"],["zip","郵便番号","postal-code"],["pref","都道府県","address-level1"],["city","市区町村・番地","address-line1"],["bldg","建物名・部屋番号","address-line2"],["card","カード"]];
 const LBL=Object.fromEntries(FIELDS.map(f=>[f[0],f[1]]));
-const blankReg=()=>({name:"",email:"",phone:"",zip:"",addr:"",card:""});
-const def=()=>({p:{name:"",email:"",phone:"",zip:"",addr:""},card:{brand:"",last4:""},
+const blankReg=()=>({name:"",email:"",phone:"",zip:"",pref:"",city:"",bldg:"",card:""});
+const def=()=>({p:{name:"",email:"",phone:"",zip:"",pref:"",city:"",bldg:""},card:{brand:"",last4:""},
  shops:[{id:"amazon",name:"Amazon",url:"https://www.amazon.co.jp/a/addresses",reg:blankReg()},{id:"vspo",name:"ぶいすぽっ！オンラインショップ",url:"",reg:blankReg()}],orders:[],log:[]});
 let S;try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
 if(!S||!S.p)S=def();
@@ -145,7 +146,9 @@ const cur=k=>k==="card"?S.card.last4:S.p[k];
 const curAll=()=>Object.fromEntries(FIELDS.map(f=>[f[0],cur(f[0])]));
 const cmp=s=>String(s||"").normalize("NFKC").toLowerCase().replace(/\s+/g,"");
 const diff=sh=>FIELDS.map(f=>f[0]).filter(k=>cur(k)!==""&&cmp(sh.reg[k])!==cmp(cur(k)));
-function mig(){S.shops.forEach(sh=>{if(!sh.reg){sh.reg=blankReg();FIELDS.forEach(f=>{const k=f[0];if(S.fv&&sh.done&&sh.done[k]>=S.fv[k])sh.reg[k]=cur(k)})}})}
+function splitAddr(a){a=String(a||"").trim();const m=a.match(/^(北海道|東京都|京都府|大阪府|[^\s]{2,3}?県)\s*(.*)$/);return m?{pref:m[1],city:m[2].trim(),bldg:""}:{pref:"",city:a,bldg:""}}
+function migAddr(o){if(!o)return;if("addr" in o){Object.assign(o,splitAddr(o.addr));delete o.addr}["pref","city","bldg"].forEach(k=>{if(o[k]==null)o[k]=""})}
+function mig(){migAddr(S.p);S.shops.forEach(sh=>{if(sh.reg)migAddr(sh.reg);if(!sh.reg){sh.reg=blankReg();FIELDS.forEach(f=>{const k=f[0];if(S.fv&&sh.done&&sh.done[k]>=S.fv[k])sh.reg[k]=cur(k)})}})}
 function go(t){document.querySelector(`nav button[data-t="${t}"]`).click()}
 function renderBanner(){
  const l=S.shops.map(sh=>({sh,d:diff(sh)})).filter(x=>x.d.length);
@@ -181,7 +184,7 @@ function renderOrders(){
  $("olist").innerHTML=list.length?list.map(o=>`<div class="row"><div><div>${hl(o.item,qs)}</div><div class="sm">${hl(nm(o.shop),qs)} ・ ${o.date.replace(/-/g,"/")}</div></div><div style="display:flex;align-items:center"><span class="price">¥${o.price.toLocaleString("ja-JP")}</span><button class="x" data-odel="${o.id}" aria-label="削除" type="button">×</button></div></div>`).join(""):'<div class="sm" style="padding:12px 0">購入の記録がありません。上のフォームから追加できます。</div>';
 }
 document.addEventListener("click",e=>{
- const b=e.target.closest("button");if(!b)return;if(b.id==="gos"){go("shops");return}const d=b.dataset;
+ const b=e.target.closest("button");if(!b)return;if(b.id==="gos"){go("shops");return}if(b.id==="cpaddr"){copy([S.p.pref+S.p.city,S.p.bldg].filter(Boolean).join(" "));return}const d=b.dataset;
  if(d.copy){copy(val(d.copy))}
  else if(d.done){const sh=S.shops.find(s=>s.id===d.done);sh.reg=curAll();S.log.unshift({t:`${sh.name}の登録を更新済みに`,w:now()});persist();renderShops();renderLog();toast("更新済みにしました")}
  else if(d.url){const u=$("u_"+d.url).value.trim();if(u&&!okUrl(u)){toast("https:// から始まるURLを入力してください");return}S.shops.find(s=>s.id===d.url).url=u;persist();renderShops();toast("保存しました")}
